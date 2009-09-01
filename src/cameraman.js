@@ -1,8 +1,9 @@
 var cameraman = null;
 
-function CameraMan(id) {
+function CameraMan(opts) {
     var _self = this;
-    this.id = id;
+    this.options = opts;
+    this.id = opts.id;
 
     this.getApp = function () {
         var name = _self.id;
@@ -17,10 +18,14 @@ function CameraMan(id) {
     };
 
     this._tookPhoto = function () {
-        $('#' + _self.id).trigger('tookPhoto');
+        if (_self.options.tookPhoto) {
+            _self.options.tookPhoto.apply(_self);
+        }
     };
     this._sentPhoto = function (url) {
-        $('#' + _self.id).trigger('sentPhoto', url);
+        if (_self.options.sentPhoto) {
+            _self.options.sentPhoto.apply(_self, url);
+        }
     };
 }
 
