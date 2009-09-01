@@ -29,6 +29,7 @@ package {
         private var movieSize:Point;
 
         public function CameraMan() {
+            stage.scaleMode = StageScaleMode.NO_SCALE;
             stage.align = StageAlign.TOP_LEFT;
 
             trace("START ME UP");
@@ -42,23 +43,19 @@ package {
 
         public function init(event:Event) : void {
             trace("initizing");
-
             sendto = this.loaderInfo.parameters.sendto;
-            trace("Sending to " + sendto);
+
             movieSize = new Point(this.loaderInfo.width, this.loaderInfo.height);
             trace("Movie size is " + this.loaderInfo.width + ", " + this.loaderInfo.height);
 
-            this.initCamera();
-        }
-
-        public function initCamera() : void {
-            videoface = new Video(movieSize.x, movieSize.y);
-            this.addChild(videoface);
-            trace("Video is " + videoface.videoWidth + ", " + videoface.videoHeight);
             cam = Camera.getCamera();
             cam.setMode(movieSize.x, movieSize.y, 15);
+            trace("Camera size is " + cam.width + ", " + cam.height);
+
+            videoface = new Video(cam.width, cam.height);
             videoface.attachCamera(cam);
-            trace("Video w/ camera is " + videoface.videoWidth + ", " + videoface.videoHeight);
+
+            this.addChild(videoface);
         }
 
         public function takePhoto() : void {
