@@ -29,13 +29,10 @@ package {
         private var movieSize:Point;
 
         public function CameraMan() {
-            stage.scaleMode = StageScaleMode.NO_SCALE;
             stage.align = StageAlign.TOP_LEFT;
 
-            sendto = stage.loaderInfo.parameters.sendto;
-            movieSize = new Point(stage.loaderInfo.width, stage.loaderInfo.height);
-
-            this.initCamera();
+            trace("START ME UP");
+            this.loaderInfo.addEventListener("init", init);
 
             if (ExternalInterface.available) {
                 ExternalInterface.addCallback("takePhoto", takePhoto);
@@ -43,12 +40,25 @@ package {
             }
         }
 
+        public function init(event:Event) : void {
+            trace("initizing");
+
+            sendto = this.loaderInfo.parameters.sendto;
+            trace("Sending to " + sendto);
+            movieSize = new Point(this.loaderInfo.width, this.loaderInfo.height);
+            trace("Movie size is " + this.loaderInfo.width + ", " + this.loaderInfo.height);
+
+            this.initCamera();
+        }
+
         public function initCamera() : void {
             videoface = new Video(movieSize.x, movieSize.y);
-            this.addChild(this.videoface);
+            this.addChild(videoface);
+            trace("Video is " + videoface.videoWidth + ", " + videoface.videoHeight);
             cam = Camera.getCamera();
-            cam.setMode(width, height, 15);
+            cam.setMode(movieSize.x, movieSize.y, 15);
             videoface.attachCamera(cam);
+            trace("Video w/ camera is " + videoface.videoWidth + ", " + videoface.videoHeight);
         }
 
         public function takePhoto() : void {
