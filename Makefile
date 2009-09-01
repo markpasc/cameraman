@@ -1,5 +1,9 @@
-all: swf/cameraman.swf
+all: build/cameraman.swf build/cameraman.js
 
-swf/cameraman.swf:
-	mkdir -p swf
-	mxmlc src/CameraMan.as -output swf/cameraman.swf
+build/cameraman.swf:
+	mkdir -p build
+	mxmlc src/CameraMan.as -output build/cameraman.swf
+
+build/cameraman.js:
+	mkdir -p build
+	cp src/cameraman.js build/cameraman.js
