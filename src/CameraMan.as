@@ -40,6 +40,7 @@ package {
             if (ExternalInterface.available) {
                 ExternalInterface.addCallback("takePhoto", takePhoto);
                 ExternalInterface.addCallback("sendPhoto", sendPhoto);
+                ExternalInterface.addCallback("dropPhoto", dropPhoto);
             }
         }
 
