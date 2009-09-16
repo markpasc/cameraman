@@ -49,6 +49,16 @@ package {
 
         public function createCamera(event:Event) : void {
             cam = Camera.getCamera();
+
+            // TODO: handle a missing camera
+            // TODO: handle a "dead" camera (fps = 0?)
+            /* TODO: handle a muted camera? we'll only get an
+             * unmuted camera to start with if they've chosen to
+             * Remember Allow. If they haven't chosen Remember Deny,
+             * they'll automatically get a dialog from attachCamera()
+             * later.
+             */
+
             cam.addEventListener("status", awesome);
             trace("got camera " + cam.name + ". muted: " + cam.muted
                 + '. size: ' + cam.width + ',' + cam.height + '. fps: '
