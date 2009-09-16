@@ -87,6 +87,13 @@ package {
             videoface.height = cam.height;
         }
 
+        public function callback(eventname:String, ... args) : void {
+            eventname = "cameraman._" + eventname;
+            var callargs:Array = [eventname] + args;
+            if (ExternalInterface.available)
+                ExternalInterface.call.apply(callargs);
+        }
+
         public function takePhoto() : void {
             // freeze image
             try {
@@ -101,9 +108,7 @@ package {
                 trace(err.name + " " + err.message);
             }
 
-            if (ExternalInterface.available) {
-                ExternalInterface.call('cameraman._tookPhoto');
-            }
+            this.callback('tookPhoto');
         }
 
         public function dropPhoto() : void {
@@ -118,9 +123,7 @@ package {
                 trace(err.name + " " + err.message);
             }
 
-            if (ExternalInterface.available) {
-                ExternalInterface.call('cameraman._droppedPhoto');
-            }
+            this.callback('droppedPhoto');
         }
 
         public function sendPhoto() : void {
@@ -161,8 +164,7 @@ package {
 
         public function sentPhoto(event:Event) : void {
             var url:String = event.target.data;
-            if (ExternalInterface.available)
-                ExternalInterface.call('cameraman._sentPhoto', url);
+            this.callback('sentPhoto', url);
         }
 
     }
