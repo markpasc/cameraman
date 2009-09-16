@@ -29,11 +29,13 @@ package {
         private var movieSize:Point;
 
         public function CameraMan() {
+            stage.addEventListener(Event.RESIZE, configureCamera);
             stage.scaleMode = StageScaleMode.NO_SCALE;
             stage.align = StageAlign.TOP_LEFT;
 
             trace("START ME UP");
-            this.loaderInfo.addEventListener("init", init);
+            sendto = this.loaderInfo.parameters.sendto;
+            configureCamera(null);
 
             if (ExternalInterface.available) {
                 ExternalInterface.addCallback("takePhoto", takePhoto);
@@ -41,21 +43,38 @@ package {
             }
         }
 
-        public function init(event:Event) : void {
-            trace("initizing");
-            sendto = this.loaderInfo.parameters.sendto;
+        public function awesome(event:Event) : void {
+            trace("~~ AWESOME " + event.target.muted);
+        }
 
-            movieSize = new Point(this.loaderInfo.width, this.loaderInfo.height);
-            trace("Movie size is " + this.loaderInfo.width + ", " + this.loaderInfo.height);
-
+        public function createCamera(event:Event) : void {
             cam = Camera.getCamera();
-            cam.setMode(movieSize.x, movieSize.y, 15);
-            trace("Camera size is " + cam.width + ", " + cam.height);
+            cam.addEventListener("status", awesome);
+            trace("got camera " + cam.name + ". muted: " + cam.muted
+                + '. size: ' + cam.width + ',' + cam.height + '. fps: '
+                + cam.currentFPS + '. max fps: ' + cam.fps + ' total cameras: ' + Camera.names.length);
+            cam.setMode(stage.stageWidth, stage.stageHeight, 15);
 
             videoface = new Video(cam.width, cam.height);
             videoface.attachCamera(cam);
-
             this.addChild(videoface);
+        }
+
+        public function configureCamera(event:Event) : void {
+            trace("o hai configure camera!!");
+
+            if (stage.stageWidth == 0) {
+                trace("stage is zero-width, so skip");
+                return;
+            }
+
+            if (!cam)
+                return this.createCamera(event);
+
+            cam.setMode(stage.stageWidth, stage.stageHeight, 15);
+            trace("Camera size is " + cam.width + ", " + cam.height);
+            videoface.width = cam.width;
+            videoface.height = cam.height;
         }
 
         public function takePhoto() : void {
