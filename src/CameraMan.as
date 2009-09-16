@@ -24,7 +24,7 @@ package {
 
         private var videoface:Video;
         private var cam:Camera;
-        private var photo:BitmapData;
+        private var photo:Bitmap;
         private var sendto:String;
         private var movieSize:Point;
 
@@ -90,12 +90,12 @@ package {
         public function takePhoto() : void {
             // freeze image
             try {
-                photo = new BitmapData(videoface.videoWidth, videoface.videoHeight, false);
-                photo.draw(videoface);
+                var photobits:BitmapData = new BitmapData(videoface.videoWidth, videoface.videoHeight, false);
+                photobits.draw(videoface);
 
                 // Swap the video for the captured bitmap.
-                var bitty:Bitmap = new Bitmap(photo);
-                this.addChild(bitty);
+                photo = new Bitmap(photobits);
+                this.addChild(photo);
                 this.removeChild(videoface);
             } catch(err:Error) {
                 trace(err.name + " " + err.message);
@@ -106,11 +106,28 @@ package {
             }
         }
 
+        public function dropPhoto() : void {
+            // cancel the freezing
+            try {
+                this.removeChild(photo);
+                photo = null;
+
+                this.addChild(videoface);
+            }
+            catch (err:Error) {
+                trace(err.name + " " + err.message);
+            }
+
+            if (ExternalInterface.available) {
+                ExternalInterface.call('cameraman._droppedPhoto');
+            }
+        }
+
         public function sendPhoto() : void {
             try {
                 // produce image file
                 var peggy:JPEGEncoder = new JPEGEncoder(75.0);
-                var image:ByteArray = peggy.encode(photo);
+                var image:ByteArray = peggy.encode(photo.bitmapData);
 
                 // send image file to server
                 var req:URLRequest = new URLRequest();

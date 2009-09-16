@@ -13,6 +13,9 @@ function CameraMan(opts) {
     this.takePhoto = function () {
         _self.getApp().takePhoto();
     };
+    this.dropPhoto = function () {
+        _self.getApp().dropPhoto();
+    };
     this.sendPhoto = function () {
         _self.getApp().sendPhoto();
     };
@@ -20,6 +23,11 @@ function CameraMan(opts) {
     this._tookPhoto = function () {
         if (_self.options.tookPhoto) {
             _self.options.tookPhoto.apply(_self);
+        }
+    };
+    this._droppedPhoto = function () {
+        if (_self.options.droppedPhoto) {
+            _self.options.droppedPhoto.apply(_self);
         }
     };
     this._sentPhoto = function (url) {
