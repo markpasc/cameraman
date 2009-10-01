@@ -25,6 +25,7 @@ package {
         private var videoface:Video;
         private var cam:Camera;
         private var photo:Bitmap;
+        private var cameraid:String;
         private var sendto:String;
         private var movieSize:Point;
 
@@ -35,6 +36,7 @@ package {
 
             trace("START ME UP");
             sendto = this.loaderInfo.parameters.sendto;
+            cameraid = this.loaderInfo.parameters.cameraid;
             configureCamera(null);
 
             if (ExternalInterface.available) {
@@ -89,10 +91,11 @@ package {
         }
 
         public function callback(eventname:String, ... args) : void {
-            eventname = "cameraman._" + eventname;
-            var callargs:Array = [eventname] + args;
+            eventname = "cameraman.cameras['" + cameraid + "']._" + eventname;
+            trace("Calling back to " + eventname + " with: " + args);
+            args.unshift(eventname);
             if (ExternalInterface.available)
-                ExternalInterface.call.apply(callargs);
+                ExternalInterface.call.apply(null, args);
         }
 
         public function takePhoto() : void {
@@ -157,10 +160,12 @@ package {
 
         public function sendingIOError(event:IOErrorEvent) : void {
             trace("IOError: " + event.type + " " + event.text + " " + event.target + " " + event.target.bytesLoaded);
+            this.callback('errorSending', 'IO error: ' + event.text);
         }
 
         public function sendingSecurityError(event:SecurityErrorEvent) : void {
             trace("SecurityError: " + event.text + " " + event.target);
+            this.callback('errorSending', 'Security error: ' + event.text);
         }
 
         public function sentPhoto(event:Event) : void {
