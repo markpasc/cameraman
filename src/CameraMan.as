@@ -6,6 +6,10 @@ package {
 
     import flash.external.ExternalInterface;
 
+    import flash.text.TextField;
+    import flash.text.TextFieldAutoSize;
+    import flash.text.TextFormat;
+    import flash.text.TextFormatAlign;
     import flash.display.Bitmap;
     import flash.display.BitmapData;
     import flash.media.Camera;
@@ -22,6 +26,7 @@ package {
 
     public class CameraMan extends Sprite {
 
+        private var nope:TextField;
         private var videoface:Video;
         private var cam:Camera;
         private var photo:Bitmap;
@@ -51,6 +56,26 @@ package {
         }
 
         public function createCamera(event:Event) : void {
+            nope = new TextField();
+            nope.autoSize = TextFieldAutoSize.CENTER;
+            nope.background = true;
+            nope.backgroundColor = 0x000000;
+            nope.textColor = 0xFFFFFF;
+            nope.text = '⃠';
+            this.addChild(nope);
+
+            var nope_fmt:TextFormat = new TextFormat();
+            nope_fmt.size = stage.stageHeight;
+            nope_fmt.align = TextFormatAlign.CENTER;
+            nope.setTextFormat(nope_fmt);
+
+            nope.x = Math.floor(stage.stageWidth / 2) - Math.floor(nope.width / 2);
+            nope.y = Math.floor(stage.stageHeight / 2) - Math.floor(nope.height / 2);
+
+            trace('Stage size is ' + stage.stageWidth + ', ' + stage.stageHeight);
+            trace('Nope size is ' + nope.width + ', ' + nope.height);
+            trace('Nope size 2 is ' + nope.width + ', ' + nope.height);
+
             cam = Camera.getCamera();
 
             // TODO: handle a missing camera
@@ -83,6 +108,13 @@ package {
 
             if (!cam)
                 return this.createCamera(event);
+
+            nope.autoSize = TextFieldAutoSize.CENTER;
+            var nope_fmt:TextFormat = new TextFormat();
+            nope_fmt.size = stage.stageHeight;
+            nope.setTextFormat(nope_fmt);
+            nope.x = Math.floor(stage.stageWidth / 2) - Math.floor(nope.width / 2);
+            nope.y = Math.floor(stage.stageHeight / 2) - Math.floor(nope.height / 2);
 
             cam.setMode(stage.stageWidth, stage.stageHeight, 15);
             trace("Camera size is " + cam.width + ", " + cam.height);
