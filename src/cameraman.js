@@ -36,6 +36,10 @@ function CameraMan(opts) {
             embedattr.flashvars += '&sendto=' + opts.sendto;
         }
 
+        if (!opts.bgColor) {
+            embedattr.bgColor = '#000000';
+        }
+
         if (!opts.wmode) {
             delete embedattr.wmode; // don't write empty attribute
         }
