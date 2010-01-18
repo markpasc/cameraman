@@ -14,6 +14,7 @@ package {
     import flash.display.BitmapData;
     import flash.media.Camera;
     import flash.media.Video;
+    import flash.geom.Matrix;
     import flash.utils.ByteArray;
     import mx.graphics.codec.JPEGEncoder;
 
@@ -95,6 +96,12 @@ package {
 
             videoface = new Video(cam.width, cam.height);
             videoface.attachCamera(cam);
+
+            var mirror:Matrix = new Matrix();
+            mirror.scale(-1, 1);
+            mirror.translate(cam.width, 0);
+            videoface.transform.matrix = mirror;
+
             this.addChild(videoface);
         }
 
