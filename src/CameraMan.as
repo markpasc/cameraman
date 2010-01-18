@@ -97,11 +97,6 @@ package {
             videoface = new Video(cam.width, cam.height);
             videoface.attachCamera(cam);
 
-            var mirror:Matrix = new Matrix();
-            mirror.scale(-1, 1);
-            mirror.translate(cam.width, 0);
-            videoface.transform.matrix = mirror;
-
             this.addChild(videoface);
         }
 
@@ -127,6 +122,11 @@ package {
             trace("Camera size is " + cam.width + ", " + cam.height);
             videoface.width = cam.width;
             videoface.height = cam.height;
+
+            var mirror:Matrix = new Matrix();
+            mirror.scale(-1, 1);
+            mirror.translate(cam.width, 0);
+            videoface.transform.matrix = mirror;
         }
 
         public function callback(eventname:String, ... args) : void {
