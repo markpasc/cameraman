@@ -91,7 +91,7 @@ package {
             trace("got camera " + cam.name + ". muted: " + cam.muted
                 + '. size: ' + cam.width + ',' + cam.height + '. fps: '
                 + cam.currentFPS + '. max fps: ' + cam.fps + ' total cameras: ' + Camera.names.length);
-            cam.setMode(stage.stageWidth, stage.stageHeight, 15);
+            cam.setMode(stage.stageWidth, stage.stageHeight, 30);
 
             videoface = new Video(cam.width, cam.height);
             videoface.attachCamera(cam);
@@ -116,7 +116,7 @@ package {
             nope.x = Math.floor(stage.stageWidth / 2) - Math.floor(nope.width / 2);
             nope.y = Math.floor(stage.stageHeight / 2) - Math.floor(nope.height / 2);
 
-            cam.setMode(stage.stageWidth, stage.stageHeight, 15);
+            cam.setMode(stage.stageWidth, stage.stageHeight, 30);
             trace("Camera size is " + cam.width + ", " + cam.height);
             videoface.width = cam.width;
             videoface.height = cam.height;
