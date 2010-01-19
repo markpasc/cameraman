@@ -77,7 +77,14 @@ package {
             trace('Nope size is ' + nope.width + ', ' + nope.height);
             trace('Nope size 2 is ' + nope.width + ', ' + nope.height);
 
-            cam = Camera.getCamera();
+            // Prefer the USB Video Class Video camera, since that's the webcam on the Mac.
+            var i:int = Camera.names.indexOf("USB Video Class Video");
+            cam = Camera.getCamera(i == -1 ? null : String(i));
+
+            if (cam == null) {
+                trace("No camera found? Indeed, there are " + Camera.names.length + " cameras");
+                return;
+            }
 
             // TODO: handle a missing camera
             // TODO: handle a "dead" camera (fps = 0?)
