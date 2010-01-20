@@ -77,7 +77,14 @@ package {
             trace('Nope size is ' + nope.width + ', ' + nope.height);
             trace('Nope size 2 is ' + nope.width + ', ' + nope.height);
 
-            // Prefer the USB Video Class Video camera, since that's the webcam on the Mac.
+            // One would think we could try to get the default camera, then if
+            // it doesn't really provide a stream, try each available video
+            // source in turn until we find one that does provide a stream.
+            // However, we can't try them here, because they all will report
+            // sizes with a currentFPS of 0, and even when attached to the
+            // Video, all the Video.videoWidths will still be 0. Instead,
+            // blindly prefer the USB Video Class Video camera, since that's
+            // the webcam on the Mac.
             var i:int = Camera.names.indexOf("USB Video Class Video");
             cam = Camera.getCamera(i == -1 ? null : String(i));
 
