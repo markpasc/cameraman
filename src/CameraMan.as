@@ -93,6 +93,10 @@ package {
                 return;
             }
 
+            trace("got camera " + cam.name + ". muted: " + cam.muted
+                + '. size: ' + cam.width + ',' + cam.height + '. fps: '
+                + cam.currentFPS + '. max fps: ' + cam.fps + ' total cameras: ' + Camera.names.length);
+
             // TODO: handle a missing camera
             // TODO: handle a "dead" camera (fps = 0?)
             /* TODO: handle a muted camera? we'll only get an
@@ -108,10 +112,14 @@ package {
                 + cam.currentFPS + '. max fps: ' + cam.fps + ' total cameras: ' + Camera.names.length);
             cam.setMode(stage.stageWidth, stage.stageHeight, 30);
 
-            videoface = new Video(cam.width, cam.height);
-            videoface.attachCamera(cam);
+            trace("after setting mode to stage " + stage.stageWidth + ',' + stage.stageHeight
+                + ', size: ' + cam.width + ',' + cam.height + '. fps: '
+                + cam.currentFPS + '. max fps: ' + cam.fps + ' total cameras: ' + Camera.names.length);
 
+            videoface = new Video(stage.stageWidth, stage.stageHeight);
+            videoface.attachCamera(cam);
             this.addChild(videoface);
+            this.prepVideo();
         }
 
         public function configureCamera(event:Event) : void {
@@ -133,13 +141,21 @@ package {
             nope.y = Math.floor(stage.stageHeight / 2) - Math.floor(nope.height / 2);
 
             cam.setMode(stage.stageWidth, stage.stageHeight, 30);
-            trace("Camera size is " + cam.width + ", " + cam.height);
-            videoface.width = cam.width;
-            videoface.height = cam.height;
+            trace("Camera size is " + cam.width + ", " + cam.height + " (tried "
+                + stage.stageWidth + "," + stage.stageHeight + ")");
+
+            this.prepVideo();
+        }
+
+        public function prepVideo() : void {
+            videoface.x = 0;
+            videoface.y = 0;
+            videoface.width = stage.stageWidth;
+            videoface.height = stage.stageHeight;
 
             var mirror:Matrix = new Matrix();
             mirror.scale(-1, 1);
-            mirror.translate(cam.width, 0);
+            mirror.translate(stage.stageWidth, 0);
             videoface.transform.matrix = mirror;
         }
 
@@ -154,7 +170,7 @@ package {
         public function takePhoto() : void {
             // freeze image
             try {
-                var photobits:BitmapData = new BitmapData(videoface.videoWidth, videoface.videoHeight, false);
+                var photobits:BitmapData = new BitmapData(stage.stageWidth, stage.stageHeight, false);
                 photobits.draw(videoface);
 
                 // Swap the video for the captured bitmap.
@@ -175,6 +191,9 @@ package {
                 photo = null;
 
                 this.addChild(videoface);
+                this.prepVideo();
+                trace("Tried to size video to " + stage.stageWidth + ","
+                    + stage.stageHeight + " when re-adding");
             }
             catch (err:Error) {
                 trace(err.name + " " + err.message);
