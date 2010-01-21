@@ -171,7 +171,10 @@ package {
             // freeze image
             try {
                 var photobits:BitmapData = new BitmapData(stage.stageWidth, stage.stageHeight, false);
-                photobits.draw(videoface);
+                var mirror:Matrix = new Matrix();
+                mirror.scale(-1, 1);
+                mirror.translate(stage.stageWidth, 0);
+                photobits.draw(videoface, mirror);
 
                 // Swap the video for the captured bitmap.
                 photo = new Bitmap(photobits);
