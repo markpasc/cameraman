@@ -133,6 +133,7 @@ package {
 
             var t:Timer = new Timer(250, 10);
             t.addEventListener(TimerEvent.TIMER, checkCamera);
+            t.addEventListener(TimerEvent.TIMER_COMPLETE, checkCameraLast);
             t.start();
         }
 
@@ -140,9 +141,18 @@ package {
             trace("whilst checking camera " + cam.name + ". muted: " + cam.muted
                 + '. size: ' + cam.width + ',' + cam.height + '. fps: '
                 + cam.currentFPS + '. max fps: ' + cam.fps + ' total cameras: ' + Camera.names.length);
-            if (cam.currentFPS > 0) {
+            if (cam.currentFPS > 0.0) {
                 event.target.stop();
                 this.callback('cameraReady');
+            }
+        }
+
+        public function checkCameraLast(event:Event) : void {
+            trace("whilst checking camera for last " + cam.name + ". muted: " + cam.muted
+                + '. size: ' + cam.width + ',' + cam.height + '. fps: '
+                + cam.currentFPS + '. max fps: ' + cam.fps + ' total cameras: ' + Camera.names.length);
+            if (cam.currentFPS <= 0.0) {
+                this.callback('cameraNotReady');
             }
         }
 
