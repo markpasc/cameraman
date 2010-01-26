@@ -3,6 +3,8 @@ package {
     import flash.display.StageScaleMode;
     import flash.display.StageAlign;
     import flash.geom.Point;
+    import flash.utils.Timer;
+    import flash.events.TimerEvent;
 
     import flash.external.ExternalInterface;
 
@@ -36,24 +38,31 @@ package {
         private var movieSize:Point;
 
         public function CameraMan() {
-            stage.addEventListener(Event.RESIZE, configureCamera);
             stage.scaleMode = StageScaleMode.NO_SCALE;
             stage.align = StageAlign.TOP_LEFT;
+            stage.addEventListener(Event.RESIZE, configureCamera);
 
             trace("START ME UP");
             sendto = this.loaderInfo.parameters.sendto;
             cameraid = this.loaderInfo.parameters.cameraid;
-            configureCamera(null);
 
             if (ExternalInterface.available) {
                 ExternalInterface.addCallback("takePhoto", takePhoto);
                 ExternalInterface.addCallback("sendPhoto", sendPhoto);
                 ExternalInterface.addCallback("dropPhoto", dropPhoto);
             }
+
+            var t:Timer = new Timer(0, 1);
+            t.addEventListener(TimerEvent.TIMER_COMPLETE, initialCameraSetup);
+            t.start();
         }
 
         public function awesome(event:Event) : void {
             trace("~~ AWESOME " + event.target.muted);
+        }
+
+        public function initialCameraSetup(event:Event) : void {
+            this.configureCamera(null);
         }
 
         public function createCamera(event:Event) : void {
@@ -119,7 +128,22 @@ package {
             videoface = new Video(stage.stageWidth, stage.stageHeight);
             videoface.attachCamera(cam);
             this.addChild(videoface);
+
             this.prepVideo();
+
+            var t:Timer = new Timer(250, 10);
+            t.addEventListener(TimerEvent.TIMER, checkCamera);
+            t.start();
+        }
+
+        public function checkCamera(event:Event) : void {
+            trace("whilst checking camera " + cam.name + ". muted: " + cam.muted
+                + '. size: ' + cam.width + ',' + cam.height + '. fps: '
+                + cam.currentFPS + '. max fps: ' + cam.fps + ' total cameras: ' + Camera.names.length);
+            if (cam.currentFPS > 0) {
+                event.target.stop();
+                this.callback('cameraReady');
+            }
         }
 
         public function configureCamera(event:Event) : void {
