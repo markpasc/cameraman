@@ -32,12 +32,15 @@ package {
         private var nope:TextField;
         private var videoface:Video;
         private var cam:Camera;
+        private var camEnabled:Boolean;
         private var photo:Bitmap;
         private var cameraid:String;
         private var sendto:String;
         private var movieSize:Point;
 
         public function CameraMan() {
+            this.camEnabled = false;
+
             stage.scaleMode = StageScaleMode.NO_SCALE;
             stage.align = StageAlign.TOP_LEFT;
             stage.addEventListener(Event.RESIZE, configureCamera);
@@ -106,8 +109,6 @@ package {
                 + '. size: ' + cam.width + ',' + cam.height + '. fps: '
                 + cam.currentFPS + '. max fps: ' + cam.fps + ' total cameras: ' + Camera.names.length);
 
-            // TODO: handle a missing camera
-            // TODO: handle a "dead" camera (fps = 0?)
             /* TODO: handle a muted camera? we'll only get an
              * unmuted camera to start with if they've chosen to
              * Remember Allow. If they haven't chosen Remember Deny,
@@ -131,9 +132,8 @@ package {
 
             this.prepVideo();
 
-            var t:Timer = new Timer(250, 10);
+            var t:Timer = new Timer(1000, 0);
             t.addEventListener(TimerEvent.TIMER, checkCamera);
-            t.addEventListener(TimerEvent.TIMER_COMPLETE, checkCameraLast);
             t.start();
         }
 
@@ -141,17 +141,13 @@ package {
             trace("whilst checking camera " + cam.name + ". muted: " + cam.muted
                 + '. size: ' + cam.width + ',' + cam.height + '. fps: '
                 + cam.currentFPS + '. max fps: ' + cam.fps + ' total cameras: ' + Camera.names.length);
-            if (cam.currentFPS > 0.0) {
-                event.target.stop();
+            var hasCam:Boolean = (cam.currentFPS > 0.0);
+            if (!this.camEnabled && hasCam) {
+                this.camEnabled = true;
                 this.callback('cameraReady');
             }
-        }
-
-        public function checkCameraLast(event:Event) : void {
-            trace("whilst checking camera for last " + cam.name + ". muted: " + cam.muted
-                + '. size: ' + cam.width + ',' + cam.height + '. fps: '
-                + cam.currentFPS + '. max fps: ' + cam.fps + ' total cameras: ' + Camera.names.length);
-            if (cam.currentFPS <= 0.0) {
+            else if (this.camEnabled && !hasCam) {
+                this.camEnabled = false;
                 this.callback('cameraNotReady');
             }
         }
@@ -202,6 +198,11 @@ package {
         }
 
         public function takePhoto() : void {
+            if (cam.currentFPS <= 0.0) {
+                this.callback('errorSending', 'No camera is available');
+                return;
+            }
+
             // freeze image
             try {
                 var photobits:BitmapData = new BitmapData(stage.stageWidth, stage.stageHeight, false);
