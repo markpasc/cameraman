@@ -26,6 +26,8 @@ package {
     import flash.events.SecurityErrorEvent;
     import flash.net.URLLoader;
     import flash.net.URLRequest;
+    import flash.net.URLVariables;
+    import ru.inspirit.net.MultipartURLLoader;
 
     public class CameraMan extends Sprite {
 
@@ -36,6 +38,7 @@ package {
         private var photo:Bitmap;
         private var cameraid:String;
         private var sendto:String;
+        private var uploadparams:String;
         private var movieSize:Point;
 
         public function CameraMan() {
@@ -47,6 +50,7 @@ package {
 
             trace("START ME UP");
             sendto = this.loaderInfo.parameters.sendto;
+            uploadparams = this.loaderInfo.parameters.uploadparams;
             cameraid = this.loaderInfo.parameters.cameraid;
 
             if (ExternalInterface.available) {
@@ -253,12 +257,19 @@ package {
                 req.contentType = peggy.contentType;
                 req.data = image;
 
-                var http:URLLoader = new URLLoader();
+                var http:MultipartURLLoader = new MultipartURLLoader();
                 http.addEventListener("complete", sentPhoto);
                 http.addEventListener("ioError", sendingIOError);
                 http.addEventListener("securityError", sendingSecurityError);
                 http.addEventListener("httpStatus", sendingHttpStatus);
-                http.load(req);
+                http.addFile(image, 'image.jpeg', 'file', peggy.contentType);
+
+                var vars:URLVariables = new URLVariables(this.uploadparams);
+                for (var key:String in vars) {
+                    http.addVariable(key, vars[key]);
+                }
+
+                http.load(this.sendto);
             } catch(err:Error) {
                 trace(err.name + " " + err.message);
             }

@@ -36,6 +36,11 @@ function CameraMan(opts) {
             embedattr.flashvars += '&sendto=' + opts.sendto;
         }
 
+        if (!opts.uploadparams) {
+            opts.uploadparams = '';
+        }
+        embedattr.flashvars += '&uploadparams=' + encodeURIComponent(opts.uploadparams);
+
         if (!opts.bgColor) {
             embedattr.bgColor = '#000000';
         }
