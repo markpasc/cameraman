@@ -29,6 +29,7 @@ package {
 
     public class CameraMan extends Sprite {
 
+        private var debugEnabled:Boolean;
         private var nope:TextField;
         private var videoface:Video;
         private var cam:Camera;
@@ -45,9 +46,10 @@ package {
             stage.align = StageAlign.TOP_LEFT;
             stage.addEventListener(Event.RESIZE, configureCamera);
 
-            trace("START ME UP");
+            logtrace("START ME UP");
             sendto = this.loaderInfo.parameters.sendto;
             cameraid = this.loaderInfo.parameters.cameraid;
+            debugEnabled = this.loaderInfo.parameters.debug ? true : false;
 
             if (ExternalInterface.available) {
                 ExternalInterface.addCallback("takePhoto", takePhoto);
@@ -61,7 +63,7 @@ package {
         }
 
         public function awesome(event:Event) : void {
-            trace("~~ AWESOME " + event.target.muted);
+            logtrace("~~ AWESOME " + event.target.muted);
         }
 
         public function initialCameraSetup(event:Event) : void {
@@ -85,9 +87,9 @@ package {
             nope.x = Math.floor(stage.stageWidth / 2) - Math.floor(nope.width / 2);
             nope.y = Math.floor(stage.stageHeight / 2) - Math.floor(nope.height / 2);
 
-            trace('Stage size is ' + stage.stageWidth + ', ' + stage.stageHeight);
-            trace('Nope size is ' + nope.width + ', ' + nope.height);
-            trace('Nope size 2 is ' + nope.width + ', ' + nope.height);
+            logtrace('Stage size is ' + stage.stageWidth + ', ' + stage.stageHeight);
+            logtrace('Nope size is ' + nope.width + ', ' + nope.height);
+            logtrace('Nope size 2 is ' + nope.width + ', ' + nope.height);
 
             // One would think we could try to get the default camera, then if
             // it doesn't really provide a stream, try each available video
@@ -101,11 +103,11 @@ package {
             cam = Camera.getCamera(i == -1 ? null : String(i));
 
             if (cam == null) {
-                trace("No camera found? Indeed, there are " + Camera.names.length + " cameras");
+                logtrace("No camera found? Indeed, there are " + Camera.names.length + " cameras");
                 return;
             }
 
-            trace("got camera " + cam.name + ". muted: " + cam.muted
+            logtrace("got camera " + cam.name + ". muted: " + cam.muted
                 + '. size: ' + cam.width + ',' + cam.height + '. fps: '
                 + cam.currentFPS + '. max fps: ' + cam.fps + ' total cameras: ' + Camera.names.length);
 
@@ -117,12 +119,12 @@ package {
              */
 
             cam.addEventListener("status", awesome);
-            trace("got camera " + cam.name + ". muted: " + cam.muted
+            logtrace("got camera " + cam.name + ". muted: " + cam.muted
                 + '. size: ' + cam.width + ',' + cam.height + '. fps: '
                 + cam.currentFPS + '. max fps: ' + cam.fps + ' total cameras: ' + Camera.names.length);
             cam.setMode(stage.stageWidth, stage.stageHeight, 30);
 
-            trace("after setting mode to stage " + stage.stageWidth + ',' + stage.stageHeight
+            logtrace("after setting mode to stage " + stage.stageWidth + ',' + stage.stageHeight
                 + ', size: ' + cam.width + ',' + cam.height + '. fps: '
                 + cam.currentFPS + '. max fps: ' + cam.fps + ' total cameras: ' + Camera.names.length);
 
@@ -138,7 +140,7 @@ package {
         }
 
         public function checkCamera(event:Event) : void {
-            trace("whilst checking camera " + cam.name + ". muted: " + cam.muted
+            logtrace("whilst checking camera " + cam.name + ". muted: " + cam.muted
                 + '. size: ' + cam.width + ',' + cam.height + '. fps: '
                 + cam.currentFPS + '. max fps: ' + cam.fps + ' total cameras: ' + Camera.names.length);
             var hasCam:Boolean = (cam.currentFPS > 0.0);
@@ -153,10 +155,10 @@ package {
         }
 
         public function configureCamera(event:Event) : void {
-            trace("o hai configure camera!!");
+            logtrace("o hai configure camera!!");
 
             if (stage.stageWidth == 0) {
-                trace("stage is zero-width, so skip");
+                logtrace("stage is zero-width, so skip");
                 return;
             }
 
@@ -171,7 +173,7 @@ package {
             nope.y = Math.floor(stage.stageHeight / 2) - Math.floor(nope.height / 2);
 
             cam.setMode(stage.stageWidth, stage.stageHeight, 30);
-            trace("Camera size is " + cam.width + ", " + cam.height + " (tried "
+            logtrace("Camera size is " + cam.width + ", " + cam.height + " (tried "
                 + stage.stageWidth + "," + stage.stageHeight + ")");
 
             this.prepVideo();
@@ -197,6 +199,12 @@ package {
                 ExternalInterface.call.apply(null, args);
         }
 
+        public function logtrace(msg:String) : void {
+            trace(msg);
+            if (debugEnabled)
+                this.callback('debugLog', msg);
+        }
+
         public function takePhoto() : void {
             if (cam.currentFPS <= 0.0) {
                 this.callback('errorSending', 'No camera is available');
@@ -216,7 +224,7 @@ package {
                 this.addChild(photo);
                 this.removeChild(videoface);
             } catch(err:Error) {
-                trace(err.name + " " + err.message);
+                logtrace(err.name + " " + err.message);
             }
 
             this.callback('tookPhoto');
@@ -230,11 +238,11 @@ package {
 
                 this.addChild(videoface);
                 this.prepVideo();
-                trace("Tried to size video to " + stage.stageWidth + ","
+                logtrace("Tried to size video to " + stage.stageWidth + ","
                     + stage.stageHeight + " when re-adding");
             }
             catch (err:Error) {
-                trace(err.name + " " + err.message);
+                logtrace(err.name + " " + err.message);
             }
 
             this.callback('droppedPhoto');
@@ -260,21 +268,21 @@ package {
                 http.addEventListener("httpStatus", sendingHttpStatus);
                 http.load(req);
             } catch(err:Error) {
-                trace(err.name + " " + err.message);
+                logtrace(err.name + " " + err.message);
             }
         }
 
         public function sendingHttpStatus(event:HTTPStatusEvent) : void {
-            trace("HTTPStatus: " + event.status + " " + event.target);
+            logtrace("HTTPStatus: " + event.status + " " + event.target);
         }
 
         public function sendingIOError(event:IOErrorEvent) : void {
-            trace("IOError: " + event.type + " " + event.text + " " + event.target + " " + event.target.bytesLoaded);
+            logtrace("IOError: " + event.type + " " + event.text + " " + event.target + " " + event.target.bytesLoaded);
             this.callback('errorSending', 'IO error: ' + event.text);
         }
 
         public function sendingSecurityError(event:SecurityErrorEvent) : void {
-            trace("SecurityError: " + event.text + " " + event.target);
+            logtrace("SecurityError: " + event.text + " " + event.target);
             this.callback('errorSending', 'Security error: ' + event.text);
         }
 

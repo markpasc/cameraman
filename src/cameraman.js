@@ -36,6 +36,10 @@ function CameraMan(opts) {
             embedattr.flashvars += '&sendto=' + opts.sendto;
         }
 
+        if (opts.debug) {
+            embedattr.flashvars += '&debug=true';
+        }
+
         if (!opts.bgColor) {
             embedattr.bgColor = '#000000';
         }
@@ -118,6 +122,9 @@ function CameraCamera(opts) {
         if (_self.options.errorSending) {
             _self.options.errorSending.apply(null, [_self, errormsg]);
         }
+    }
+    this._debugLog = function (msg) {
+        if (window.console) console.log(msg);
     }
 }
 
